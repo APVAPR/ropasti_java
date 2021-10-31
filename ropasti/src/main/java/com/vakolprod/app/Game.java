@@ -5,6 +5,10 @@ import java.util.*;
 public class Game {
 
     LinkedList<String> listSigns;
+    String userMove;
+    int userIndex;
+    int compIndex;
+    String compMove;
 
     Game(LinkedList<String> signs) {
         this.listSigns = signs;
@@ -20,37 +24,46 @@ public class Game {
         System.out.println("?" + " - " + "help");
     }
 
-    private int compMove(LinkedList<String> list) {
+    private void compMove() {
         Random number = new Random();
-        return number.nextInt(list.size());
+        this.compIndex = number.nextInt(this.listSigns.size());
+        this.compMove = this.listSigns.get(this.compIndex);
     }
 
-    private int userMove() {
+    private void userMoveInput() {
         Scanner mv = new Scanner(System.in);
         System.out.println("Enter your move: ");
-        String move = mv.nextLine();
-        boolean success = true;
-        if (Objects.equals(move, "?")) return -1;
-        else if (Objects.equals(move, "0")) {
+        this.userMove = mv.nextLine();
+    }
+
+    public void checkUserInput() {
+        if (Objects.equals(this.userMove, "?")) {
+            HelpTable.drawTable(this.listSigns);
+            gameRound();
+
+        }
+        else if (Objects.equals(this.userMove, "0")) {
             System.out.println("GAME FINISHED");
             System.exit(0);
-        }
-        else {
+        } else {
             try {
-                Integer.parseInt(move);
+                Integer.parseInt(userMove);
+                getUserIndex();
             } catch (NumberFormatException e) {
-                success = false;
-            }
-            if (success) {
-                int index = Integer.parseInt(move) - 1;
-                if (index >= 0 && index < (this.listSigns.size())) {
-                    System.out.println("Your move: " + this.listSigns.get(index));
-                    return index;
-                }
+                System.out.println("'!!!You entered invalid values!!!!'");
             }
         }
-        return -3;
     }
+
+    public void getUserIndex() {
+        int index = Integer.parseInt(this.userMove) - 1;
+        if (index >= 0 && index < (this.listSigns.size())) {
+            this.userIndex = index;
+            this.userMove = this.listSigns.get(index + 1);
+            System.out.println("Your move: " + this.listSigns.get(index));
+        }
+    }
+
     public static void inputInfo() {
         System.out.println("Invalid input:" + "\n" +
                 "'The number of characters must be odd and more than three'"+ "\n" +
@@ -58,40 +71,29 @@ public class Game {
                 "'Example input: rock paper scissor lizard spock");
     }
 
-    public int gameRound() {
-        this.showMenu();
-        int user = this.userMove();
-        boolean status = false;
-        if (user == -3) {
-            System.out.println("'!!!You entered invalid values!!!!'");
-        } else if (user == -1) {
-            System.out.println("------HELP-TABLE------");
-            HelpTable.makeTable();
-        } else if (user >= 0 && user < (this.listSigns.size())) status = true;
-        if (status) return user;
-        return -1;
+    public void gameRound() {
+        showMenu();
+        userMoveInput();
+        checkUserInput();
     }
+
     public static boolean checkInputRules(String[] args) {
         return args.length < 3 || !(checkReplays(args)) || (args.length % 2 == 0);
     }
 
     public static void main(String[] args) {
-        if (checkInputRules(args)) Game.inputInfo();
+        if (checkInputRules(args)) inputInfo();
         else {
             LinkedList<String> signList = new LinkedList<>(List.of(args));
             Game game = new Game(signList);
-            int pcInd = game.compMove(game.listSigns);
-            String compMoveIs = game.listSigns.get(pcInd);
-            HashGen.genKeyandHmac(compMoveIs);
+            game.compMove();
+            HashGen.genKeyandHmac(game.compMove);
             String key = HashGen.key;
             String HMAC = HashGen.getHMAC();
             System.out.println("HMAC: " + HMAC);
-            int userMove = game.gameRound();
-            while (userMove < 0) {
-                userMove = game.gameRound();
-            }
-            System.out.println("Computer move: " + compMoveIs);
-            String winner = Rules.winnerCheck(game.listSigns, userMove, pcInd);
+            game.gameRound();
+            System.out.println("Computer move: " + game.compMove);
+            String winner = Rules.winnerCheck(game.listSigns, game.userIndex, game.compIndex);
             if (Objects.equals(winner, "Draw")) {
                 System.out.println("Draw");
             } else {
