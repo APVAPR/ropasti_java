@@ -8,8 +8,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 
 public class HashGen {
-    protected static String key = null;
-    protected static String HMAC = null;
+    private static String key;
+    private static String HMAC;
 
     public static String encode(String key, String data) throws Exception {
         Mac sha256_HMAC = Mac.getInstance("HmacSHA256");

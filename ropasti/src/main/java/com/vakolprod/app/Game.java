@@ -40,7 +40,6 @@ public class Game {
         if (Objects.equals(this.userMove, "?")) {
             HelpTable.drawTable(this.listSigns);
             gameRound();
-
         }
         else if (Objects.equals(this.userMove, "0")) {
             System.out.println("GAME FINISHED");
@@ -59,7 +58,7 @@ public class Game {
         int index = Integer.parseInt(this.userMove) - 1;
         if (index >= 0 && index < (this.listSigns.size())) {
             this.userIndex = index;
-            this.userMove = this.listSigns.get(index + 1);
+            this.userMove = this.listSigns.get(index);
             System.out.println("Your move: " + this.listSigns.get(index));
         }
     }
@@ -82,13 +81,15 @@ public class Game {
     }
 
     public static void main(String[] args) {
-        if (checkInputRules(args)) inputInfo();
+        if (checkInputRules(args)) {
+            inputInfo();
+        }
         else {
             LinkedList<String> signList = new LinkedList<>(List.of(args));
             Game game = new Game(signList);
             game.compMove();
             HashGen.genKeyandHmac(game.compMove);
-            String key = HashGen.key;
+            String key = HashGen.getKey();
             String HMAC = HashGen.getHMAC();
             System.out.println("HMAC: " + HMAC);
             game.gameRound();
@@ -98,8 +99,8 @@ public class Game {
                 System.out.println("Draw");
             } else {
                 System.out.println("You " + winner);
-                System.out.println("KEY: " + key);
             }
+            System.out.println("KEY: " + key);
         }
     }
 }
