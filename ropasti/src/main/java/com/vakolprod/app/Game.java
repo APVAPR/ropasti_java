@@ -49,7 +49,7 @@ public class Game {
                 Integer.parseInt(userMove);
                 getUserIndex();
             } catch (NumberFormatException e) {
-                System.out.println("'!!!You entered invalid values!!!!'");
+                restartRound();
             }
         }
     }
@@ -60,7 +60,7 @@ public class Game {
             this.userIndex = index;
             this.userMove = this.listSigns.get(index);
             System.out.println("Your move: " + this.listSigns.get(index));
-        }
+        } else restartRound();
     }
 
     public static void inputInfo() {
@@ -69,7 +69,10 @@ public class Game {
                 "'Signs must not be repeated"+ "\n" +
                 "'Example input: rock paper scissor lizard spock");
     }
-
+    public void restartRound() {
+        System.out.println("Сhoose from existing options:");
+        gameRound();
+    }
     public void gameRound() {
         showMenu();
         userMoveInput();
